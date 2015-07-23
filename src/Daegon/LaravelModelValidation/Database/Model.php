@@ -6,10 +6,11 @@ use Illuminate\Validation\Validator;
 abstract class Model extends \Eloquent
 {
     public $skipValidation = false;
-    public $throwValidationException = false;
+    protected $throwValidationException = false;
     protected static $rules = [];
     protected static $messages = [];
     public $validation;
+    public $validator;
 
     public function __construct(array $attributes = array(), Validator $validator = null)
     {
@@ -27,7 +28,7 @@ abstract class Model extends \Eloquent
 
     public function update_(array $attributes = []){
         $this->throwValidationException = true;
-        $callResult = parent::save($attributes);
+        $callResult = parent::update($attributes);
         $this->throwValidationException = false;
         return $callResult;
     }
@@ -36,13 +37,13 @@ abstract class Model extends \Eloquent
     {
         parent::boot();
 
-        static::saving(function(ValidationEloquent $model) {
+        static::saving(function(Model $model) {
             if($model->skipValidation) {
                 return true;
             }
             if(!$model->isValid()) {
                 if($model->throwValidationException) {
-                    throw new ModelValidationFailException('Validation failed', $model->validation->errors);
+                    throw new ModelValidationFailException('Validation failed', $model->validation->errors());
                 }
                 return false;
             };
