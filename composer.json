@@ -13,7 +13,7 @@
     },
     "autoload": {
         "psr-4"   : {
-          "Daegon\\LaravelMailer\\": "src/Daegon/LaravelModelValidation"
+          "Daegon\\LaravelModelValidation\\": "src/Daegon/LaravelModelValidation"
         }
     },
     "minimum-stability": "stable"
