@@ -2,6 +2,7 @@
 
 use Daegon\LaravelModelValidation\Exceptions\ModelValidationFailException;
 use Illuminate\Validation\Validator;
+use App;
 
 abstract class Model extends \Eloquent
 {
@@ -52,7 +53,19 @@ abstract class Model extends \Eloquent
     }
 
     public function isValid() {
-        $this->validation = $this->validator->make($this->attributes, static::$rules, static::$messages);
+        $attributes = $this->attributes;
+        $rules = static::$rules;
+        if(isset(static::$rules['dimsavTranslations'])) {
+            foreach($this->getLocales() as $locale) {
+                $attributes[$locale] = [];
+                foreach (static::$rules['dimsavTranslations'] as $field => $rule) {
+                    $rules["$locale.$field"] = $rule;
+                    $attributes[$locale][$field] = $this->translate($locale)->$field;
+                }
+            }
+        }
+        $this->validation = $this->validator->make($attributes, $rules, static::$messages);
         return $this->validation->passes();
     }
+
 }
